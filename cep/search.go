@@ -85,7 +85,7 @@ func SearchPublicBaseWithContext(ctx context.Context, cancel context.CancelFunc,
 			if cepPublic.Valid() && correiosDone {
 				return cepPublic, nil
 			}
-		case <-time.After(time.Duration(4) * time.Second):
+		case <-time.After(4 * time.Second):
 			return cepPublic, nil
 		}
 	}
