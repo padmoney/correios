@@ -62,17 +62,8 @@ func searchCorreios(ctx context.Context, cep string) CEP {
 }
 
 func searchPostmon(ctx context.Context, cep string) CEP {
-	body, err := get("https://api.postmon.com.br/v1/cep/%s", cep)
-	if body == nil || err != nil {
-		return CEP{}
-	}
 	var data postmon
-	if err := json.Unmarshal(body, &data); err != nil {
-		return CEP{}
-	}
-	if data.UF == "" {
-		return CEP{}
-	}
+	get("https://api.postmon.com.br/v1/cep/%s", cep, &data)
 	return CEP{
 		Logradouro: data.Logradouro,
 		Bairro:     data.Bairro,
@@ -84,15 +75,8 @@ func searchPostmon(ctx context.Context, cep string) CEP {
 }
 
 func searchRepublicaVirtual(ctx context.Context, cep string) CEP {
-	body, err := get("https://republicavirtual.com.br/web_cep.php?cep=%s&formato=json", cep)
-	if body == nil || err != nil {
-		return CEP{}
-	}
-
 	var data republicaVirtual
-	if err := json.Unmarshal(body, &data); err != nil {
-		return CEP{}
-	}
+	get("https://republicavirtual.com.br/web_cep.php?cep=%s&formato=json", cep, &data)
 	return CEP{
 		Logradouro: fmt.Sprintf("%s %s", data.TipoLogradouro, data.Logradouro),
 		Bairro:     data.Bairro,
@@ -104,15 +88,8 @@ func searchRepublicaVirtual(ctx context.Context, cep string) CEP {
 }
 
 func searchViaCEP(ctx context.Context, cep string) CEP {
-	body, err := get("https://viacep.com.br/ws/%s/json/", cep)
-	if body == nil || err != nil {
-		return CEP{}
-	}
-
 	var data viaCEP
-	if err := json.Unmarshal(body, &data); err != nil {
-		return CEP{}
-	}
+	get("https://viacep.com.br/ws/%s/json/", cep, &data)
 	return CEP{
 		Logradouro: data.Logradouro,
 		Bairro:     data.Bairro,
@@ -123,17 +100,21 @@ func searchViaCEP(ctx context.Context, cep string) CEP {
 	}
 }
 
-func get(url, cep string) ([]byte, error) {
+func get(url, cep string, data interface{}) {
 	url = fmt.Sprintf(url, cep)
 	resp, err := http.Get(url)
 	if err != nil {
-		return nil, err
+		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, nil
+		return
 	}
 
-	return ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
+	if body == nil || err != nil {
+		return
+	}
+	json.Unmarshal(body, &data)
 }
