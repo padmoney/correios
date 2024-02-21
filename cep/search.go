@@ -33,6 +33,18 @@ func SearchWithContext(ctx context.Context, cancel context.CancelFunc, cep strin
 	return searchCorreios(ctx, cep), nil
 }
 
+func SearchViaCEP(cep string) (CEP, error) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	var err error
+	cep, err = formatCEP(cep)
+	if err != nil {
+		return CEP{}, err
+	}
+	return searchViaCEP(ctx, cep), nil
+}
+
 func SearchPublicBase(cep string) (CEP, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	return SearchPublicBaseWithContext(ctx, cancel, cep)
