@@ -40,7 +40,7 @@ func SearchViaCEP(cep string) (CEP, error) {
 	var err error
 	cep, err = formatCEP(cep)
 	if err != nil {
-		return CEP{}, err
+		return CEP{}, nil
 	}
 	return searchViaCEP(ctx, cep), nil
 }
